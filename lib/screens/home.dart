@@ -11,106 +11,128 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  TextEditingController _heightController = TextEditingController();
+  TextEditingController _weightController = TextEditingController();
+  double _bmiResult = 0;
+  String _textResult = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                  width: 130,
-                  child: TextField(
-                    style: TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.w300,
-                      color: accentHexColor,
+            Container(
+              margin: EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    width: 130,
+                    child: TextField(
+                      controller: _heightController,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w300,
+                        color: accentHexColor,
+                      ),
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Height",
+                          hintStyle: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontSize: 32,
+                            color: Colors.white.withOpacity(0.8),
+                          )),
                     ),
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Height",
-                        hintStyle: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 42,
-                          color: Colors.white.withOpacity(0.8),
-                        )),
                   ),
-                ),
-                Container(
-                  width: 130,
-                  child: TextField(
-                    style: TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.w300,
-                      color: accentHexColor,
+                  Container(
+                    width: 130,
+                    child: TextField(
+                      controller: _weightController,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w300,
+                        color: accentHexColor,
+                      ),
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Weight",
+                          hintStyle: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontSize: 32,
+                            color: Colors.white.withOpacity(0.8),
+                          )),
                     ),
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Weight",
-                        hintStyle: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 42,
-                          color: Colors.white.withOpacity(0.8),
-                        )),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
+                ],
+              ),
             ),
             Container(
-              child: Text(
-                'Calculate',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: accentHexColor,
+              width: double.infinity,
+              margin: EdgeInsets.all(20.0),
+              // ignore: deprecated_member_use
+              child: RaisedButton(
+                padding: EdgeInsets.all(10),
+                color: accentHexColor,
+                onPressed: () {
+                  double _h;
+                  double _w;
+                  setState(() {
+                    if (_heightController.text.isNotEmpty &&
+                        _weightController.text.isNotEmpty) {
+                      _h = double.parse(_heightController.text);
+                      _w = double.parse(_weightController.text);
+                      _bmiResult = _w / (_h * _h);
+                      if (_bmiResult > 25) {
+                        _textResult = "You\'re over weight";
+                      } else if (_bmiResult >= 18.5 && _bmiResult <= 25) {
+                        _textResult = "You have normal weight";
+                      } else {
+                        _textResult = "You are under weight";
+                      }
+                    }
+                  });
+                },
+                child: Text(
+                  'Calculate',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: mainHexColor,
+                  ),
                 ),
               ),
             ),
-            SizedBox(
-              height: 50,
-            ),
             Container(
+              margin: EdgeInsets.all(20.0),
               child: Text(
-                '10',
+                _bmiResult.toStringAsFixed(2),
                 style: TextStyle(
                   fontSize: 90,
                   color: accentHexColor,
                 ),
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
-            Container(
-              child: Text(
-                'Normal Weight',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w400,
-                  color: accentHexColor,
+            Visibility(
+              visible: _textResult.isNotEmpty,
+              child: Container(
+                margin: EdgeInsets.all(20.0),
+                child: Text(
+                  _textResult,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w400,
+                    color: accentHexColor,
+                  ),
                 ),
               ),
             ),
-            SizedBox(height: 10),
-            LeftBar(barWidth: 40),
-            SizedBox(height: 20),
-            LeftBar(barWidth: 70),
-            SizedBox(height: 20),
-            LeftBar(barWidth: 40),
-            SizedBox(height: 10),
-            RightBar(barWidth: 80),
-            SizedBox(height: 40),
-            RightBar(barWidth: 80),
+            LeftBar(barWidth: [40, 80, 40], spacing: 20),
+            RightBar(barWidth: [40, 80, 40], spacing: 20),
           ],
         ),
       ),
@@ -119,11 +141,23 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: Text('BMI Calculator',
-            style: TextStyle(
-              fontWeight: FontWeight.w300,
-              color: accentHexColor,
-            )),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Text('BMI Calculator',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    color: accentHexColor,
+                  )),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Icon(Icons.calculate, color: accentHexColor),
+            ),
+          ],
+        ),
       ),
     );
   }
